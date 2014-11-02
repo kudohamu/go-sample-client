@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 )
 
 func main() {
@@ -27,10 +28,11 @@ func main() {
 	checkError(err)
 	defer conn.Close()
 
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 	conn.Write([]byte(message))
-	checkError(err)
 
 	readBuf := make([]byte, 1024)
+	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	readlen, err := conn.Read(readBuf)
 	checkError(err)
 
