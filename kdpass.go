@@ -1,11 +1,21 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 	"time"
 )
+
+type server struct {
+	IP   string
+	Port string
+}
+
+type kdpassConf struct {
+	Server server
+}
 
 func main() {
 	if len(os.Args) != 2 {
@@ -14,17 +24,19 @@ func main() {
 	}
 	message := os.Args[1]
 
-	serverIP := "192.168.5.17"
-	serverPort := "51456"
-	myIP := "192.168.5.17"
-	myPort := 51432
+	jsonFile, err := os.Open("kdpass.json")
+	checkError(err)
+	decoder := json.NewDecoder(jsonFile)
+	var config kdpassConf
+	err = decoder.Decode(&config)
+	checkError(err)
+
+	serverIP := config.Server.IP
+	serverPort := string(config.Server.Port)
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", serverIP+":"+serverPort)
 	checkError(err)
-	myAddr := new(net.TCPAddr)
-	myAddr.IP = net.ParseIP(myIP)
-	myAddr.Port = myPort
-	conn, err := net.DialTCP("tcp", myAddr, tcpAddr)
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	checkError(err)
 	defer conn.Close()
 
@@ -41,7 +53,7 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "fatal: error: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "fatal: %s", err.Error())
 		os.Exit(1)
 	}
 }
