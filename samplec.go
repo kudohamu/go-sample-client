@@ -21,7 +21,7 @@ type server struct {
 	DNSName string
 }
 
-type kdpassConf struct {
+type sampleConf struct {
 	Server server
 }
 
@@ -75,10 +75,10 @@ func main() {
 	}
 	message := os.Args[1]
 
-	jsonFile, err := os.Open("kdpass.json")
+	jsonFile, err := os.Open("sample.json")
 	checkError(err)
 	decoder := json.NewDecoder(jsonFile)
-	var config kdpassConf
+	var config sampleConf
 	err = decoder.Decode(&config)
 	checkError(err)
 
